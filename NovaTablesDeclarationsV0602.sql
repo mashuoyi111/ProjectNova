@@ -1,5 +1,5 @@
 -- Table Declarations for Project Nova
--- Version: V0531b2
+-- Version: V0602
 -- Author: Phoenix
 
 CREATE DATABASE if not exists nova;
@@ -55,6 +55,7 @@ CREATE TABLE AuthorDetails(
     AID varchar(100),
     LCode char(5) default 'eng',
     AName varchar(200) not null,
+    ADesc TEXT,
     primary key(AID,LCode),
     FOREIGN KEY(AID) REFERENCES Authors(AID) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY(LCode) REFERENCES Languages(LCode) ON UPDATE CASCADE ON DELETE CASCADE
@@ -79,8 +80,8 @@ CREATE TABLE Books(
     AID varchar(100) not null,
     GCode varchar(10) not null,
     ORelease DATE default 0,
-    Clicks INT UNSIGNED,
-    Rating INT UNSIGNED,
+    Clicks INT UNSIGNED default 0,
+    Rating INT UNSIGNED default NULL,
     FOREIGN KEY(AID) REFERENCES Authors(AID) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY(GCode) REFERENCES Genres(GCode) ON UPDATE CASCADE ON DELETE CASCADE
 );
@@ -92,6 +93,7 @@ CREATE TABLE BookDetails(
     BRelease DATE not null default 0,
     WCount INT default NULL,
     BUpdate DATE not null default 0,
+    BDesc TEXT,
     primary key(BID,LCode),
     FOREIGN KEY(BID) REFERENCES Books(BID) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY(LCode) REFERENCES Languages(LCode) ON UPDATE CASCADE ON DELETE CASCADE
@@ -99,7 +101,7 @@ CREATE TABLE BookDetails(
 
 CREATE TABLE Links(
     URL TEXT not null,
-    LType TEXT,
+    LType TEXT not null,
     BID varchar(100),
     LCode char(5) default 'eng',
     LChecksum INT unsigned,
@@ -112,6 +114,7 @@ CREATE TABLE Members(
     UserName varchar(20) primary key,
     UserPass char(40) not null, -- Encrypt the password in SHA1, no actual password stored
     LangPref char(5) default 'eng',
+    SectionID char(40),
     FOREIGN KEY(LangPref) REFERENCES Languages(LCode) ON UPDATE CASCADE ON DELETE SET NULL
 );
 
@@ -152,7 +155,7 @@ CREATE TABLE FAVAuthors(
 );
 
 CREATE TABLE CMTBooks(
-    TStamp timestamp(3),
+    TStamp timestamp,
     BID varchar(100),
     Content TEXT not null,
     primary key(TStamp, BID),
@@ -160,7 +163,7 @@ CREATE TABLE CMTBooks(
 );
 
 CREATE TABLE CMTAuthors(
-    TStamp timestamp(3),
+    TStamp timestamp,
     AID varchar(100),
     Content TEXT not null,
     primary key(TStamp, AID),
