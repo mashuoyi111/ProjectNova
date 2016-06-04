@@ -8,6 +8,8 @@ use nova;
 insert into Languages values( 'eng','English', 'http://localhost/eng/');
 insert into Languages values( 'jpn','日本語', 'http://localhost/jpn/');
 insert into Languages values( 'zho','中文', 'http://localhost/zho/');
+insert into Languages values( 'fra','Français', 'http://localhost/404/');
+insert into Languages values( 'deu','Deutsche', 'http://localhost/404/');
 
 -- Authors Table
 -- 
@@ -61,7 +63,9 @@ insert into Genres values( 'History', 'zho', '历史', 'https://zh.wikipedia.org
 -- 
 insert into Books values( 'Re_Zero_Novels','Nagatsuki_Tappei', 'Fantasy', DATE('2012-04-20 00:00:00'), null, null);
 insert into Books values( 'The_Three_Body_Novels','Liu_Cixin', 'SF', DATE('2006-05-01 00:00:00'), null, null);
-
+insert into Books values( 'The_Micro_Age_LCX','Liu_Cixin', 'SF', DATE('2006-05-01 00:00:00'), null, null);
+insert into Books values( "The_Whales_Song_LCX",'Liu_Cixin', 'SF', DATE('2006-05-01 00:00:00'), null, null);
+insert into Books values( 'Migration_Across_Time_LCX','Liu_Cixin', 'SF', DATE('2006-05-01 00:00:00'), null, null);
 -- BookDetails Table
 -- 
 insert into BookDetails values( 'Re_Zero_Novels','jpn', 'Ｒｅ：ゼロから始める異世界生活', DATE('2012-04-20 00:00:00'), 4768996, CURRENT_DATE(), "突如、コンビニ帰りに異世界へ召喚されたひきこもり学生の菜月昴。知識も技術も武力もコミュ能力もない、ないない尽くしの凡人が、チートボーナスを与えられることもなく放り込まれた異世界で必死こいて生き抜く。彼に与えられたたった一個の祝福は、『死んだら巻き戻ります』という痛みを伴う『死に戻り』のみ！　頼れるもののいない異世界で、いったい彼は何度死に、なにを掴み取るのか。　　※血も死体も出る予定ですが、そんな派手なことにはなりません。");
