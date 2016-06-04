@@ -1,5 +1,5 @@
 -- Table Declarations for Project Nova
--- Version: V0602
+-- Version: V0603
 -- Author: Phoenix
 
 CREATE DATABASE if not exists nova;
@@ -30,48 +30,21 @@ CREATE TABLE Languages(
     HomePage TEXT
 );
 
-CREATE TABLE Countries(
-    CCode char(3) primary key,
-    OfficialLang char(5),
-    FOREIGN KEY(OfficialLang) REFERENCES Languages(LCode) ON UPDATE CASCADE ON DELETE SET NULL 
-);
-
-CREATE TABLE CountryDetails(
-    CCode char(3),
-    LCode char(5) default 'eng',
-    CName varchar(100) not null,
-    primary key(CCode, LCode),
-    FOREIGN KEY(CCode) REFERENCES Countries(CCode) ON UPDATE CASCADE ON DELETE CASCADE,
-    FOREIGN KEY(LCode) REFERENCES Languages(LCode) ON UPDATE CASCADE ON DELETE CASCADE
-);
-
 CREATE TABLE Authors(
-    AID varchar(100) primary key,
-    FromCountry char(3) not null,
-    FOREIGN KEY(FromCountry) REFERENCES Countries(CCode) ON UPDATE CASCADE ON DELETE CASCADE
-);
-
-CREATE TABLE AuthorDetails(
-    AID varchar(100),
-    LCode char(5) default 'eng',
+    AID varchar(100) not null,
+    LCode char(5) not null,
     AName varchar(200) not null,
     ADesc TEXT,
     primary key(AID,LCode),
-    FOREIGN KEY(AID) REFERENCES Authors(AID) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY(LCode) REFERENCES Languages(LCode) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE Genres(
-    GCode varchar(10) primary key
-);
-
-CREATE TABLE GenreDetails(
-    GCode varchar(10),
-    LCode char(5) default 'eng',
+    GCode varchar(10) not null,
+    LCode char(5) not null,
     GName varchar(200) not null,
     GLink TEXT,
     primary key(GCode,LCode),
-    FOREIGN KEY(GCode) REFERENCES Genres(GCode) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY(LCode) REFERENCES Languages(LCode) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
@@ -87,8 +60,8 @@ CREATE TABLE Books(
 );
 
 CREATE TABLE BookDetails(
-    BID varchar(100),
-    LCode char(5) default 'eng',
+    BID varchar(100) not null,
+    LCode char(5) not null,
     BName TEXT not null,
     BRelease DATE not null default 0,
     WCount INT default NULL,
@@ -102,9 +75,9 @@ CREATE TABLE BookDetails(
 CREATE TABLE Links(
     URL TEXT not null,
     LType TEXT not null,
-    BID varchar(100),
-    LCode char(5) default 'eng',
-    LChecksum INT unsigned,
+    BID varchar(100) not null,
+    LCode char(5) not null,
+    LChecksum INT unsigned not null,
     primary key(LChecksum, BID, LCode),
     FOREIGN KEY(BID) REFERENCES Books(BID) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY(LCode) REFERENCES Languages(LCode) ON UPDATE CASCADE ON DELETE CASCADE
@@ -119,53 +92,53 @@ CREATE TABLE Members(
 );
 
 CREATE TABLE HSBooks(
-    UserName varchar(20),
-    BID varchar(100),
-    LastVisit DATETIME not null default now(),
+    UserName varchar(20) not null,
+    BID varchar(100) not null,
+    LastVisit DATETIME not null,
     primary key(UserName, BID),
     FOREIGN KEY(UserName) REFERENCES Members(UserName) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY(BID) REFERENCES Books(BID) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE HSAuthors(
-    UserName varchar(20),
-    AID varchar(100),
-    LastVisit DATETIME not null default now(),
+    UserName varchar(20) not null,
+    AID varchar(100) not null,
+    LastVisit DATETIME not null,
     primary key(UserName, AID),
     FOREIGN KEY(UserName) REFERENCES Members(UserName) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY(AID) REFERENCES Authors(AID) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE FAVBooks(
-    UserName varchar(20),
-    BID varchar(100),
-    AddedAt DATE not null default 0,
+    UserName varchar(20) not null,
+    BID varchar(100) not null,
+    AddedAt DATE not null,
     primary key(UserName, BID),
     FOREIGN KEY(UserName) REFERENCES Members(UserName) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY(BID) REFERENCES Books(BID) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE FAVAuthors(
-    UserName varchar(20),
-    AID varchar(100),
-    AddedAt DATE not null default 0,
+    UserName varchar(20) not null,
+    AID varchar(100) not null,
+    AddedAt DATE not null,
     primary key(UserName, AID),
     FOREIGN KEY(UserName) REFERENCES Members(UserName) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY(AID) REFERENCES Authors(AID) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE CMTBooks(
-    TStamp timestamp,
-    BID varchar(100),
+	CMTID int not null auto_increment primary key,
+    TStamp timestamp not null,
+    BID varchar(100) not null,
     Content TEXT not null,
-    primary key(TStamp, BID),
     FOREIGN KEY(BID) REFERENCES Books(BID) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE CMTAuthors(
-    TStamp timestamp,
-    AID varchar(100),
+	CMTID int not null auto_increment primary key,
+    TStamp timestamp not null,
+    AID varchar(100) not null,
     Content TEXT not null,
-    primary key(TStamp, AID),
     FOREIGN KEY(AID) REFERENCES Authors(AID) ON UPDATE CASCADE ON DELETE CASCADE
 );

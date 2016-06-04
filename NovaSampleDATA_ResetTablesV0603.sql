@@ -1,5 +1,5 @@
 -- Sample Data Insertion(withdatabase reseting)
--- Version: V0602
+-- Version: V0603
 -- Author: Phoenix
 
 CREATE DATABASE if not exists nova;
@@ -16,7 +16,7 @@ DROP TABLE if exists Members cascade;
 DROP TABLE if exists Links cascade;
 DROP TABLE if exists BookDetails cascade;
 DROP TABLE if exists Books cascade;
-DROP TABLE if exists GenreDetails cascade;
+DROP TABLE if exists Genres cascade;
 DROP TABLE if exists Genres cascade;
 DROP TABLE if exists AuthorDetails cascade;
 DROP TABLE if exists Authors cascade;
@@ -25,234 +25,183 @@ DROP TABLE if exists Countries cascade;
 DROP TABLE if exists Languages cascade;
 
 CREATE TABLE Languages(
-	LCode char(5) primary key,
-	LName varchar(100) not null,
-	HomePage TEXT
-);
-
-CREATE TABLE Countries(
-	CCode char(3) primary key,
-	OfficialLang char(5),
-	FOREIGN KEY(OfficialLang) REFERENCES Languages(LCode) ON UPDATE CASCADE ON DELETE SET NULL 
-);
-
-CREATE TABLE CountryDetails(
-	CCode char(3),
-	LCode char(5) default 'eng',
-	CName varchar(100) not null,
-	primary key(CCode, LCode),
-	FOREIGN KEY(CCode) REFERENCES Countries(CCode) ON UPDATE CASCADE ON DELETE CASCADE,
-	FOREIGN KEY(LCode) REFERENCES Languages(LCode) ON UPDATE CASCADE ON DELETE CASCADE
+    LCode char(5) primary key,
+    LName varchar(100) not null,
+    HomePage TEXT
 );
 
 CREATE TABLE Authors(
-	AID varchar(100) primary key,
-	FromCountry char(3) not null,
-	FOREIGN KEY(FromCountry) REFERENCES Countries(CCode) ON UPDATE CASCADE ON DELETE CASCADE
-);
-
-CREATE TABLE AuthorDetails(
-	AID varchar(100),
-	LCode char(5) default 'eng',
-	AName varchar(200) not null,
-	ADesc TEXT,
-	primary key(AID,LCode),
-	FOREIGN KEY(AID) REFERENCES Authors(AID) ON UPDATE CASCADE ON DELETE CASCADE,
-	FOREIGN KEY(LCode) REFERENCES Languages(LCode) ON UPDATE CASCADE ON DELETE CASCADE
+    AID varchar(100) not null,
+    LCode char(5) not null,
+    AName varchar(200) not null,
+    ADesc TEXT,
+    primary key(AID,LCode),
+    FOREIGN KEY(LCode) REFERENCES Languages(LCode) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE Genres(
-	GCode varchar(10) primary key
-);
-
-CREATE TABLE GenreDetails(
-	GCode varchar(10),
-	LCode char(5) default 'eng',
-	GName varchar(200) not null,
-	GLink TEXT,
-	primary key(GCode,LCode),
-	FOREIGN KEY(GCode) REFERENCES Genres(GCode) ON UPDATE CASCADE ON DELETE CASCADE,
-	FOREIGN KEY(LCode) REFERENCES Languages(LCode) ON UPDATE CASCADE ON DELETE CASCADE
+    GCode varchar(10) not null,
+    LCode char(5) not null,
+    GName varchar(200) not null,
+    GLink TEXT,
+    primary key(GCode,LCode),
+    FOREIGN KEY(LCode) REFERENCES Languages(LCode) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE Books(
-	BID varchar(100) primary key,
-	AID varchar(100) not null,
-	GCode varchar(10) not null,
-	ORelease DATE default 0,
-	Clicks INT UNSIGNED default 0,
-	Rating INT UNSIGNED default NULL,
-	FOREIGN KEY(AID) REFERENCES Authors(AID) ON UPDATE CASCADE ON DELETE CASCADE,
-	FOREIGN KEY(GCode) REFERENCES Genres(GCode) ON UPDATE CASCADE ON DELETE CASCADE
+    BID varchar(100) primary key,
+    AID varchar(100) not null,
+    GCode varchar(10) not null,
+    ORelease DATE default 0,
+    Clicks INT UNSIGNED default 0,
+    Rating INT UNSIGNED default NULL,
+    FOREIGN KEY(AID) REFERENCES Authors(AID) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY(GCode) REFERENCES Genres(GCode) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE BookDetails(
-	BID varchar(100),
-	LCode char(5) default 'eng',
-	BName TEXT not null,
-	BRelease DATE not null default 0,
-	WCount INT default NULL,
-	BUpdate DATE not null default 0,
-	BDesc TEXT,
-	primary key(BID,LCode),
-	FOREIGN KEY(BID) REFERENCES Books(BID) ON UPDATE CASCADE ON DELETE CASCADE,
-	FOREIGN KEY(LCode) REFERENCES Languages(LCode) ON UPDATE CASCADE ON DELETE CASCADE
+    BID varchar(100) not null,
+    LCode char(5) not null,
+    BName TEXT not null,
+    BRelease DATE not null default 0,
+    WCount INT default NULL,
+    BUpdate DATE not null default 0,
+    BDesc TEXT,
+    primary key(BID,LCode),
+    FOREIGN KEY(BID) REFERENCES Books(BID) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY(LCode) REFERENCES Languages(LCode) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE Links(
-	URL TEXT not null,
-	LType TEXT not null,
-	BID varchar(100),
-	LCode char(5) default 'eng',
-	LChecksum INT unsigned,
-	primary key(LChecksum, BID, LCode),
-	FOREIGN KEY(BID) REFERENCES Books(BID) ON UPDATE CASCADE ON DELETE CASCADE,
-	FOREIGN KEY(LCode) REFERENCES Languages(LCode) ON UPDATE CASCADE ON DELETE CASCADE
+    URL TEXT not null,
+    LType TEXT not null,
+    BID varchar(100) not null,
+    LCode char(5) not null,
+    LChecksum INT unsigned not null,
+    primary key(LChecksum, BID, LCode),
+    FOREIGN KEY(BID) REFERENCES Books(BID) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY(LCode) REFERENCES Languages(LCode) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE Members(
-	UserName varchar(20) primary key,
-	UserPass char(40) not null, -- Encrypt the password in SHA1, no actual password stored
-	LangPref char(5) default 'eng',
-	SectionID char(40),
-	FOREIGN KEY(LangPref) REFERENCES Languages(LCode) ON UPDATE CASCADE ON DELETE SET NULL
+    UserName varchar(20) primary key,
+    UserPass char(40) not null, -- Encrypt the password in SHA1, no actual password stored
+    LangPref char(5) default 'eng',
+    SectionID char(40),
+    FOREIGN KEY(LangPref) REFERENCES Languages(LCode) ON UPDATE CASCADE ON DELETE SET NULL
 );
 
 CREATE TABLE HSBooks(
-	UserName varchar(20),
-	BID varchar(100),
-	LastVisit DATETIME not null default now(),
-	primary key(UserName, BID),
-	FOREIGN KEY(UserName) REFERENCES Members(UserName) ON UPDATE CASCADE ON DELETE CASCADE,
-	FOREIGN KEY(BID) REFERENCES Books(BID) ON UPDATE CASCADE ON DELETE CASCADE
+    UserName varchar(20) not null,
+    BID varchar(100) not null,
+    LastVisit DATETIME not null,
+    primary key(UserName, BID),
+    FOREIGN KEY(UserName) REFERENCES Members(UserName) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY(BID) REFERENCES Books(BID) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE HSAuthors(
-	UserName varchar(20),
-	AID varchar(100),
-	LastVisit DATETIME not null default now(),
-	primary key(UserName, AID),
-	FOREIGN KEY(UserName) REFERENCES Members(UserName) ON UPDATE CASCADE ON DELETE CASCADE,
-	FOREIGN KEY(AID) REFERENCES Authors(AID) ON UPDATE CASCADE ON DELETE CASCADE
+    UserName varchar(20) not null,
+    AID varchar(100) not null,
+    LastVisit DATETIME not null,
+    primary key(UserName, AID),
+    FOREIGN KEY(UserName) REFERENCES Members(UserName) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY(AID) REFERENCES Authors(AID) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE FAVBooks(
-	UserName varchar(20),
-	BID varchar(100),
-	AddedAt DATE not null default 0,
-	primary key(UserName, BID),
-	FOREIGN KEY(UserName) REFERENCES Members(UserName) ON UPDATE CASCADE ON DELETE CASCADE,
-	FOREIGN KEY(BID) REFERENCES Books(BID) ON UPDATE CASCADE ON DELETE CASCADE
+    UserName varchar(20) not null,
+    BID varchar(100) not null,
+    AddedAt DATE not null,
+    primary key(UserName, BID),
+    FOREIGN KEY(UserName) REFERENCES Members(UserName) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY(BID) REFERENCES Books(BID) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE FAVAuthors(
-	UserName varchar(20),
-	AID varchar(100),
-	AddedAt DATE not null default 0,
-	primary key(UserName, AID),
-	FOREIGN KEY(UserName) REFERENCES Members(UserName) ON UPDATE CASCADE ON DELETE CASCADE,
-	FOREIGN KEY(AID) REFERENCES Authors(AID) ON UPDATE CASCADE ON DELETE CASCADE
+    UserName varchar(20) not null,
+    AID varchar(100) not null,
+    AddedAt DATE not null,
+    primary key(UserName, AID),
+    FOREIGN KEY(UserName) REFERENCES Members(UserName) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY(AID) REFERENCES Authors(AID) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE CMTBooks(
-	TStamp timestamp,
-	BID varchar(100),
-	Content TEXT not null,
-	primary key(TStamp, BID),
-	FOREIGN KEY(BID) REFERENCES Books(BID) ON UPDATE CASCADE ON DELETE CASCADE
+	CMTID int not null auto_increment primary key,
+    TStamp timestamp not null,
+    BID varchar(100) not null,
+    Content TEXT not null,
+    FOREIGN KEY(BID) REFERENCES Books(BID) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE CMTAuthors(
-	TStamp timestamp,
-	AID varchar(100),
-	Content TEXT not null,
-	primary key(TStamp, AID),
-	FOREIGN KEY(AID) REFERENCES Authors(AID) ON UPDATE CASCADE ON DELETE CASCADE
+	CMTID int not null auto_increment primary key,
+    TStamp timestamp not null,
+    AID varchar(100) not null,
+    Content TEXT not null,
+    FOREIGN KEY(AID) REFERENCES Authors(AID) ON UPDATE CASCADE ON DELETE CASCADE
 );
 -- END OF TABLE RESETTING
 
+
 --
+-- Sample data insertion
+--
+
 -- Language Table (Language Code Refers to ISO 639-3 Code
 -- 					https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes)
 insert into Languages values( 'eng','English', 'http://localhost/eng/');
 insert into Languages values( 'jpn','日本語', 'http://localhost/jpn/');
 insert into Languages values( 'zho','中文', 'http://localhost/zho/');
 
--- Countries Table (Country Code Refers to ISO ALPHA-3 Code
--- 					http://www.nationsonline.org/oneworld/country_code_list.htm)
-insert into Countries values( 'CAN','eng');
-insert into Countries values( 'JAN','jpn');
-insert into Countries values( 'CHN','zho');
-insert into Countries values( 'USA','eng');
-insert into Countries values( 'GBR','eng');
-
--- CountryDetails Table
--- 
-insert into CountryDetails values( 'CAN','eng', 'Canada');
-insert into CountryDetails values( 'CAN','jpn', 'カナダ');
-insert into CountryDetails values( 'CAN','zho', '加拿大');
-
-insert into CountryDetails values( 'JAN','eng', 'Japan');
-insert into CountryDetails values( 'JAN','jpn', '日本');
-insert into CountryDetails values( 'JAN','zho', '日本');
-
-insert into CountryDetails values( 'CHN','eng', 'China');
-insert into CountryDetails values( 'CHN','jpn', '中国');
-insert into CountryDetails values( 'CHN','zho', '中国');
-
-insert into CountryDetails values( 'USA','eng', 'United States');
-insert into CountryDetails values( 'USA','jpn', 'アメリカ合衆国');
-insert into CountryDetails values( 'USA','zho', '美国');
-
-insert into CountryDetails values( 'GBR','eng', 'United Kingdom');
-insert into CountryDetails values( 'GBR','jpn', 'イギリス');
-insert into CountryDetails values( 'GBR','zho', '英国');
-
 -- Authors Table
 -- 
-insert into Authors values( 'Nagatsuki_Tappei','JAN');
-insert into Authors values( 'Liu_Cixin','CHN');
+insert into Authors values( 'Nagatsuki_Tappei','eng', 'Tappei Nagatsuki', 'Tappei Nagatsuki is the author of the light novel series RE:Zero.');
+insert into Authors values( 'Nagatsuki_Tappei','jpn', '鼠色猫/長月達平', '鼠色猫/長月達平とは、大手小説投稿サイト『小説家になろう』出身のライトノベル作家である。代表作は『Ｒｅ：ゼロから始める異世界生活』。');
+insert into Authors values( 'Nagatsuki_Tappei','zho', '长月达平', '长月达平（1987年3月11日[1]  -），是日本男性小说家，轻小说作家。 原本是笔名为鼠色猫的网路电子小说投稿网站「成为小说家吧」作家，《Re:从零开始的异世界生活》为其第一本实体化小说。2016年2月11日，应台湾青文出版社邀请，参加第4届台北国际动漫节并举办签名会。');
 
--- AuthorDetails Table
--- 
-insert into AuthorDetails values( 'Nagatsuki_Tappei','eng', 'Tappei Nagatsuki', 'Tappei Nagatsuki is the author of the light novel series RE:Zero.');
-insert into AuthorDetails values( 'Nagatsuki_Tappei','jpn', '鼠色猫/長月達平', '鼠色猫/長月達平とは、大手小説投稿サイト『小説家になろう』出身のライトノベル作家である。代表作は『Ｒｅ：ゼロから始める異世界生活』。');
-insert into AuthorDetails values( 'Nagatsuki_Tappei','zho', '长月达平', '长月达平（1987年3月11日[1]  -），是日本男性小说家，轻小说作家。 原本是笔名为鼠色猫的网路电子小说投稿网站「成为小说家吧」作家，《Re:从零开始的异世界生活》为其第一本实体化小说。2016年2月11日，应台湾青文出版社邀请，参加第4届台北国际动漫节并举办签名会。');
-
-insert into AuthorDetails values( 'Liu_Cixin','eng', 'Cixin Liu', "Liu Cixin (simplified Chinese: 刘慈欣; traditional Chinese: 劉慈欣, IPA: [li̯ǒu̯ tsʰɨ̌ɕín]; born 1963) is a Chinese science fiction writer.[1] He is a nine-time winner of the Galaxy Award (China's most prestigious literary science fiction award) and winner of The Hugo Award.[2] Liu's work is considered hard science fiction. In English translations of his works, his name is given in the form Cixin Liu.");
-insert into AuthorDetails values( 'Liu_Cixin','jpn', '劉慈欣', '劉慈欣（りゅう じきん、1968年[1] - ）は、中華人民共和国のSF作家。山西省陽泉出身[2]。本業はエンジニアで、発電所のコンピュータ管理を担当している。
+insert into Authors values( 'Liu_Cixin','eng', 'Cixin Liu', "Liu Cixin (simplified Chinese: 刘慈欣; traditional Chinese: 劉慈欣, IPA: [li̯ǒu̯ tsʰɨ̌ɕín]; born 1963) is a Chinese science fiction writer.[1] He is a nine-time winner of the Galaxy Award (China's most prestigious literary science fiction award) and winner of The Hugo Award.[2] Liu's work is considered hard science fiction. In English translations of his works, his name is given in the form Cixin Liu.");
+insert into Authors values( 'Liu_Cixin','jpn', '劉慈欣', '劉慈欣（りゅう じきん、1968年[1] - ）は、中華人民共和国のSF作家。山西省陽泉出身[2]。本業はエンジニアで、発電所のコンピュータ管理を担当している。
 中学生のころから創作を開始。1999年、中国のSF雑誌『科幻世界』（zh）でデビュー。その後、銀河賞（zh）に連続して入選。2010年、第1回中国星雲賞（世界華人SF協会主催）で作家賞を受賞（韓松と同時受賞）。
 SFに興味を持つきっかけになったのはジュール・ヴェルヌ『地底旅行』で、その後アーサー・C・クラークの『2001年宇宙の旅』で本格的にSFにのめり込むようになった。
 公刊された日本語訳には、2001年に第12回銀河賞特等賞を受賞した短編「さまよえる地球」（S-Fマガジン掲載）がある。');
-insert into AuthorDetails values( 'Liu_Cixin','zho', '刘慈欣','刘慈欣（1963年6月23日－），中国当代科幻作家，自1980年代中期开始创作，1999年6月起在《科幻世界》杂志上发表多篇科幻小说和科幻随笔，并出版了多部长篇科幻小说，现为中国科普作家协会会员，山西省作家协会会员，阳泉市作协副主席。其代表作有长篇小说《超新星纪元》、《球状闪电》、《三体》、《三体II：黑暗森林》、《三体III：死神永生》，中短篇小说《流浪地球》、《乡村教师》、《朝闻道》等。刘慈欣目前是中国最有影响力的本土科幻作家之一。');
+insert into Authors values( 'Liu_Cixin','zho', '刘慈欣','刘慈欣（1963年6月23日－），中国当代科幻作家，自1980年代中期开始创作，1999年6月起在《科幻世界》杂志上发表多篇科幻小说和科幻随笔，并出版了多部长篇科幻小说，现为中国科普作家协会会员，山西省作家协会会员，阳泉市作协副主席。其代表作有长篇小说《超新星纪元》、《球状闪电》、《三体》、《三体II：黑暗森林》、《三体III：死神永生》，中短篇小说《流浪地球》、《乡村教师》、《朝闻道》等。刘慈欣目前是中国最有影响力的本土科幻作家之一。');
 
 -- Genres Table
 -- 
-insert into Genres values( 'SF');
-insert into Genres values( 'Comedy');
-insert into Genres values( 'Romance');
-insert into Genres values( 'Mystery');
-insert into Genres values( 'Horror');
-insert into Genres values( 'Tragedy');
-insert into Genres values( 'History');
-insert into Genres values( 'Fantasy');
+insert into Genres values( 'SF', 'eng', 'Science fiction', 'https://en.wikipedia.org/wiki/Science_fiction');
+insert into Genres values( 'SF', 'jpn', 'サイエンス フィクション', 'https://ja.wikipedia.org/wiki/%E3%82%B5%E3%82%A4%E3%82%A8%E3%83%B3%E3%82%B9%E3%83%BB%E3%83%95%E3%82%A3%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3');
+insert into Genres values( 'SF', 'zho', '科幻', 'https://zh.wikipedia.org/wiki/%E7%A7%91%E5%AD%B8%E5%B9%BB%E6%83%B3');
 
--- GenreDetails Table
--- 
-insert into GenreDetails values( 'SF', 'eng', 'Science fiction', 'https://en.wikipedia.org/wiki/Science_fiction');
-insert into GenreDetails values( 'SF', 'jpn', 'サイエンス フィクション', 'https://ja.wikipedia.org/wiki/%E3%82%B5%E3%82%A4%E3%82%A8%E3%83%B3%E3%82%B9%E3%83%BB%E3%83%95%E3%82%A3%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3');
-insert into GenreDetails values( 'SF', 'zho', '科幻', 'https://zh.wikipedia.org/wiki/%E7%A7%91%E5%AD%B8%E5%B9%BB%E6%83%B3');
+insert into Genres values( 'Fantasy', 'eng', 'Fantasy', 'https://en.wikipedia.org/wiki/Fantasy');
+insert into Genres values( 'Fantasy', 'jpn', 'ファンタジー', 'https://ja.wikipedia.org/wiki/%E3%83%95%E3%82%A1%E3%83%B3%E3%82%BF%E3%82%B8%E3%83%BC');
+insert into Genres values( 'Fantasy', 'zho', '奇幻', 'https://zh.wikipedia.org/wiki/%E5%A5%87%E5%B9%BB%E4%BD%9C%E5%93%81');
 
-insert into GenreDetails values( 'Fantasy', 'eng', 'Fantasy', 'https://en.wikipedia.org/wiki/Fantasy');
-insert into GenreDetails values( 'Fantasy', 'jpn', 'ファンタジー', 'https://ja.wikipedia.org/wiki/%E3%83%95%E3%82%A1%E3%83%B3%E3%82%BF%E3%82%B8%E3%83%BC');
-insert into GenreDetails values( 'Fantasy', 'zho', '奇幻', 'https://zh.wikipedia.org/wiki/%E5%A5%87%E5%B9%BB%E4%BD%9C%E5%93%81');
+insert into Genres values( 'Comedy', 'eng', 'Comedy', 'https://en.wikipedia.org/wiki/Comedy');
+insert into Genres values( 'Comedy', 'jpn', 'コメディ', 'https://ja.wikipedia.org/wiki/%E5%96%9C%E5%8A%87');
+insert into Genres values( 'Comedy', 'zho', '喜剧', 'https://zh.wikipedia.org/wiki/%E5%96%9C%E5%8A%87');
 
-insert into GenreDetails values( 'Comedy', 'eng', 'Comedy', 'https://en.wikipedia.org/wiki/Comedy');
-insert into GenreDetails values( 'Romance', 'eng', 'Romance', 'https://en.wikipedia.org/wiki/Romance_novel');
-insert into GenreDetails values( 'Mystery', 'eng', 'Mystery', 'https://en.wikipedia.org/wiki/Mystery_fiction');
-insert into GenreDetails values( 'Horror', 'eng', 'Horror', 'https://en.wikipedia.org/wiki/Horror_fiction');
-insert into GenreDetails values( 'Tragedy', 'eng', 'Tragedy', 'https://en.wikipedia.org/wiki/Tragedy');
-insert into GenreDetails values( 'History', 'eng', 'History', 'https://en.wikipedia.org/wiki/Historical_fiction');
+insert into Genres values( 'Romance', 'eng', 'Romance', 'https://en.wikipedia.org/wiki/Romance_novel');
+insert into Genres values( 'Romance', 'jpn', '恋愛', 'https://ja.wikipedia.org/wiki/%E6%81%8B%E6%84%9B%E5%B0%8F%E8%AA%AC');
+insert into Genres values( 'Romance', 'zho', '浪漫', 'https://zh.wikipedia.org/wiki/%E6%84%9B%E6%83%85%E5%B0%8F%E8%AA%AA');
+
+insert into Genres values( 'Mystery', 'eng', 'Mystery', 'https://en.wikipedia.org/wiki/Mystery_fiction');
+insert into Genres values( 'Mystery', 'jpn', 'ミステリ', 'https://ja.wikipedia.org/wiki/%E3%83%9F%E3%82%B9%E3%83%86%E3%83%AA');
+insert into Genres values( 'Mystery', 'zho', '神秘', 'https://zh.wikipedia.org/wiki/%E7%A5%9E%E7%A7%98%E5%B0%8F%E8%AA%AA');
+
+insert into Genres values( 'Horror', 'eng', 'Horror', 'https://en.wikipedia.org/wiki/Horror_fiction');
+insert into Genres values( 'Horror', 'jpn', 'ホラー', 'https://ja.wikipedia.org/wiki/%E6%81%90%E6%80%96');
+insert into Genres values( 'Horror', 'zho', '恐怖', 'https://zh.wikipedia.org/wiki/%E6%81%90%E6%83%A7');
+
+insert into Genres values( 'Tragedy', 'eng', 'Tragedy', 'https://en.wikipedia.org/wiki/Tragedy');
+insert into Genres values( 'Tragedy', 'jpn', '悲劇', 'https://ja.wikipedia.org/wiki/%E6%82%B2%E5%8A%87');
+insert into Genres values( 'Tragedy', 'zho', '悲剧', 'https://zh.wikipedia.org/wiki/%E6%82%B2%E5%8A%87');
+
+insert into Genres values( 'History', 'eng', 'History', 'https://en.wikipedia.org/wiki/Historical_fiction');
+insert into Genres values( 'History', 'jpn', '歴史', 'https://ja.wikipedia.org/wiki/%E6%AD%B4%E5%8F%B2%E5%B0%8F%E8%AA%AC');
+insert into Genres values( 'History', 'zho', '历史', 'https://zh.wikipedia.org/wiki/%E5%8E%86%E5%8F%B2%E5%B0%8F%E8%AF%B4');
+
 
 -- Books Table
 -- 
@@ -327,16 +276,16 @@ insert into FAVAuthors values( 'chashaobao', 'Liu_Cixin', DATE(DATE_SUB(NOW(),IN
 
 -- CMTBooks Table
 -- 
-insert into CMTBooks values( DATE_SUB(NOW(),INTERVAL 5 DAY), 'Re_Zero_Novels','this is a short commnet 1 for a book 1');
-insert into CMTBooks values( DATE_SUB(NOW(),INTERVAL 3 DAY), 'The_Three_Body_Novels', 'this is a short commnet 1 for a book 2');
-insert into CMTBooks values( DATE_SUB(NOW(),INTERVAL 1 DAY), 'Re_Zero_Novels', 'this is a short commnet 1 for a book 3');
-insert into CMTBooks values( NOW(), 'The_Three_Body_Novels', 'this is a short commnet 1 for a book 4');
-insert into CMTBooks values( DATE_SUB(NOW(),INTERVAL 2 DAY), 'Re_Zero_Novels', 'this is a short commnet 1 for a book 5');
+insert into CMTBooks(TStamp, BID, Content) values( DATE_SUB(NOW(),INTERVAL 5 DAY), 'Re_Zero_Novels','this is a short commnet 1 for a book 1');
+insert into CMTBooks(TStamp, BID, Content) values( DATE_SUB(NOW(),INTERVAL 3 DAY), 'The_Three_Body_Novels', 'this is a short commnet 1 for a book 2');
+insert into CMTBooks(TStamp, BID, Content) values( DATE_SUB(NOW(),INTERVAL 1 DAY), 'Re_Zero_Novels', 'this is a short commnet 1 for a book 3');
+insert into CMTBooks(TStamp, BID, Content) values( NOW(), 'The_Three_Body_Novels', 'this is a short commnet 1 for a book 4');
+insert into CMTBooks(TStamp, BID, Content) values( DATE_SUB(NOW(),INTERVAL 2 DAY), 'Re_Zero_Novels', 'this is a short commnet 1 for a book 5');
 
 -- CMTAuthors Table
 -- 
-insert into CMTAuthors values( DATE_SUB(NOW(),INTERVAL 5 DAY), 'Nagatsuki_Tappei', 'this is a short commnet 1 for an author 1');
-insert into CMTAuthors values( DATE_SUB(NOW(),INTERVAL 3 DAY), 'Liu_Cixin', 'this is a short commnet 1 for an author 1');
-insert into CMTAuthors values( DATE_SUB(NOW(),INTERVAL 1 DAY), 'Nagatsuki_Tappei', 'this is a short commnet 1 for an author 1');
-insert into CMTAuthors values( NOW(), 'Nagatsuki_Tappei', 'this is a short commnet 1 for an author 1');
-insert into CMTAuthors values( DATE_SUB(NOW(),INTERVAL 2 DAY), 'Liu_Cixin', 'this is a short commnet 1 for an author 1');
+insert into CMTAuthors(TStamp, AID, Content) values( DATE_SUB(NOW(),INTERVAL 5 DAY), 'Nagatsuki_Tappei', 'this is a short commnet 1 for an author 1');
+insert into CMTAuthors(TStamp, AID, Content) values( DATE_SUB(NOW(),INTERVAL 3 DAY), 'Liu_Cixin', 'this is a short commnet 1 for an author 1');
+insert into CMTAuthors(TStamp, AID, Content) values( DATE_SUB(NOW(),INTERVAL 1 DAY), 'Nagatsuki_Tappei', 'this is a short commnet 1 for an author 1');
+insert into CMTAuthors(TStamp, AID, Content) values( NOW(), 'Nagatsuki_Tappei', 'this is a short commnet 1 for an author 1');
+insert into CMTAuthors(TStamp, AID, Content) values( DATE_SUB(NOW(),INTERVAL 2 DAY), 'Liu_Cixin', 'this is a short commnet 1 for an author 1');
