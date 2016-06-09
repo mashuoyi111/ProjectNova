@@ -6,7 +6,9 @@ $dbh = null;
 
 // Exception handler
 function exception_handler($exception) {
+  if ($GLOBALS['dbh']) $GLOBALS['dbh']->rollBack();
   echo "ERROR!: " , $exception->getMessage(), "\n";
+  $GLOBALS['dbh'] = null;
   die();
 }
 set_exception_handler('exception_handler');
