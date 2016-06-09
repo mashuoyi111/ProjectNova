@@ -1,8 +1,10 @@
 -- Sample Data Insertion(withdatabase reseting)
--- Version: V0603
+-- Version: V0609
 -- Author: Phoenix
 
 CREATE DATABASE if not exists nova;
+ALTER DATABASE nova CHARACTER SET utf8;
+
 use nova;
 
 -- RESETING TABLES
