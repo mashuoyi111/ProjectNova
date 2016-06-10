@@ -3,7 +3,7 @@
 	Besure to do all 3 steps when use, $dbh is the PDO object prepared.*/
 
 /* 1. Import Connection head File */
-include 'pdo_h.php';
+include_once 'pdo_h.php';
 
 class Author {
     public $AID;
