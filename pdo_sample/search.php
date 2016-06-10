@@ -1,3 +1,14 @@
+<html lang="zh-cn">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Result</title>
+
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="css/signin.css" rel="stylesheet">
+</head>
+
 <?php
 /* Sample PDO usage demo2:
 	Serch Query,
@@ -47,8 +58,8 @@ class Search {
 		if (!$kwds){
 			$stmt = $dbh->prepare(
 				"SELECT b.BID,bd.BName,b.AID,a.AName,bd.LCode,b.GCode,g.GName,bd.BRelease,bd.BUpdate
-				FROM Books b,BookDetails bd, Authors a, Genres g 
-				Where b.BID = bd.BID AND b.AID = a.AID AND b.GCode = g.GCode AND bd.LCode = :lang AND a.LCode = :lang AND g.LCode = :lang 
+				FROM Books b,BookDetails bd, Authors a, Genres g
+				Where b.BID = bd.BID AND b.AID = a.AID AND b.GCode = g.GCode AND bd.LCode = :lang AND a.LCode = :lang AND g.LCode = :lang
 				Order by bd.BName");
 			$stmt->bindParam(':lang', $lCode);
 			$stmt->execute();
@@ -60,7 +71,7 @@ class Search {
 						Where bd.BName like :q1 AND bd.BName like :q2 AND bd.BName like :q3
 						Union
 						Select b.BID
-						From Authors a, Books b 
+						From Authors a, Books b
 						Where a.AID = b.AID AND AName like :q1 AND AName like :q2 AND AName like :q3) as x, BookDetails bd, Books b,Authors a, Genres g
 				Where x.BID = b.BID AND x.BID = bd.BID AND b.AID = a.AID AND b.GCode = g.GCode AND bd.LCode = :lang AND a.LCode = :lang AND g.LCode = :lang
 				Order by bd.BName");
@@ -82,7 +93,9 @@ class Search {
 // Execution codes:
 $sf = new Search;
 // $results is a SearchResult object, so you can directly request the related field from it.
-$results = $sf->queryASearch( '劉慈欣', 'eng');
+$searchquery=$_POST['search'];
+
+$results = $sf->queryASearch( "$searchquery", 'eng');
 
 foreach($results as $row)
 	{
@@ -90,3 +103,5 @@ foreach($results as $row)
 		echo '<br /> <br />';
 	}
 ?>
+
+</html>

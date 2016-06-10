@@ -22,9 +22,9 @@ function db_connect(){
 }
 
 // Commit and Close databae connection
-function db_commit(){ 
+function db_commit(){
 	$GLOBALS['dbh']->commit();
-	$GLOBALS['dbh'] = null; 
+	$GLOBALS['dbh'] = null;
 }
 
 
